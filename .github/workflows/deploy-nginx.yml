@@ -23,13 +23,29 @@ jobs:
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
 
+      - name: Install gke-gcloud-auth-plugin
+        run: |
+          gcloud components install gke-gcloud-auth-plugin
+          echo "export USE_GKE_GCLOUD_AUTH_PLUGIN=True" >> $GITHUB_ENV
+
       - name: Configure kubectl
         run: |
           gcloud container clusters get-credentials my-gke-cluster --region us-central1 --project ${{ secrets.GCP_PROJECT_ID }}
+          echo "Kubernetes Context:"
+          kubectl config current-context
           kubectl version --client
+          kubectl cluster-info
 
       - name: Deploy to GKE
         run: |
+          echo "Applying deployment..."
           kubectl apply -f nginx-deployment.yaml
+          echo "Checking rollout status..."
           kubectl rollout status deployment/nginx-deployment
-          kubectl get services
+          echo "Fetching services..."
+          kubectl get services -o wide
+
+      - name: Debugging - Check Pods and Deployments
+        run: |
+          kubectl get pods -A
+          kubectl get deployments -A
