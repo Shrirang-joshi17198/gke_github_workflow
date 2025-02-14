@@ -30,6 +30,6 @@ jobs:
 
       - name: Deploy to GKE
         run: |
-          kubectl apply -f k8s/nginx-deployment.yaml
+          kubectl apply -f nginx-deployment.yaml
           kubectl rollout status deployment/nginx-deployment
           kubectl get services
